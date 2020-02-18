@@ -4,11 +4,10 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import ru.palushin86.jirka.R
-import ru.palushin86.jirka.entity.Cabinet
-import ru.palushin86.jirka.entity.Equipment
+import ru.palushin86.jirka.entities.Cabinet
 
 class CabinetsAdapter(
-    private val cabinets: List<Cabinet>,
+    private var cabinets: List<Cabinet>,
     private val listener: DeleteCabinetListener
 ) : RecyclerView.Adapter<CabinetsViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CabinetsViewHolder {
@@ -22,7 +21,14 @@ class CabinetsAdapter(
     }
 
     override fun onBindViewHolder(holder: CabinetsViewHolder, position: Int) {
-        holder.cabinet.text = cabinets[position].name
+        holder.name.text = cabinets[position].name
+        holder.owner.text = cabinets[position].owner
+        holder.level.text = cabinets[position].level
+    }
+
+    fun setData(it: List<Cabinet>) {
+        cabinets = it
+        notifyDataSetChanged()
     }
 
 }

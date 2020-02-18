@@ -4,10 +4,10 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import ru.palushin86.jirka.R
-import ru.palushin86.jirka.entity.EquipmentType
+import ru.palushin86.jirka.entities.EquipmentType
 
 class EquipmentTypeAdapter(
-    private val types: List<EquipmentType>,
+    private var types: List<EquipmentType>,
     private val listener: DeleteEquipmentTypeListener
 ) : RecyclerView.Adapter<EquipmentTypeViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EquipmentTypeViewHolder {
@@ -22,6 +22,11 @@ class EquipmentTypeAdapter(
 
     override fun onBindViewHolder(holder: EquipmentTypeViewHolder, position: Int) {
         holder.type.text = types[position].name
+    }
+
+    fun setData(data: List<EquipmentType>) {
+        types = data
+        notifyDataSetChanged()
     }
 
 }

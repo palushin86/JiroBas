@@ -2,24 +2,21 @@ package ru.palushin86.jirka.ui.cabinets
 
 import android.app.AlertDialog
 import android.os.Bundle
-import android.text.Editable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.fragment_cabinet.*
 import ru.palushin86.jirka.R
-import ru.palushin86.jirka.data.DataManager
-import ru.palushin86.jirka.data.contracts.CabinetsDataManager
-import ru.palushin86.jirka.entity.Cabinet
+import ru.palushin86.jirka.entities.Cabinet
 
 class CabinetsFragment : Fragment(), DeleteCabinetListener {
-    private lateinit var cabinetsViewModel: CabinetsViewModel
-    private var dataManager: CabinetsDataManager = DataManager()
+    private lateinit var viewModel: CabinetsViewModel
     private lateinit var adapter: CabinetsAdapter
 
     override fun onCreateView(
@@ -27,7 +24,7 @@ class CabinetsFragment : Fragment(), DeleteCabinetListener {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        cabinetsViewModel =
+        viewModel =
             ViewModelProviders.of(this).get(CabinetsViewModel::class.java)
         return inflater.inflate(R.layout.fragment_cabinet, container, false)
     }
@@ -35,21 +32,28 @@ class CabinetsFragment : Fragment(), DeleteCabinetListener {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         rv_cabinets.layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
-        adapter = CabinetsAdapter(dataManager.cabinets, this)
+        adapter = CabinetsAdapter(emptyList(), this)
         rv_cabinets.adapter = adapter
+
+        viewModel.getCabinets().observe(this, Observer {
+            viewModel.cabinets = it as MutableList<Cabinet>
+            adapter.setData(it)
+        })
 
         add_cabinet.setOnClickListener { onEquipmentTypeAddClick() }
     }
 
     override fun delete(position: Int) {
-        if (!checkLinksExist()) {
-            (dataManager.cabinets as MutableList).removeAt(position)
+        if (!checkLinksExist(position)) {
+            val deletedItem = viewModel.cabinets[position]
+            viewModel.deleteCabinet(deletedItem)
             adapter.notifyDataSetChanged()
         }
     }
 
-    private fun checkLinksExist(): Boolean {
-        //TODO: здесь перед удалением будет проверяться есть ли у оборудования связанные записи
+    private fun checkLinksExist(position: Int): Boolean {
+        val item = viewModel.cabinets[position]
+        viewModel.checkLinksExist(item)
         return false
     }
 
@@ -65,7 +69,7 @@ class CabinetsFragment : Fragment(), DeleteCabinetListener {
                 .setTitle("Ввод нового типа оборудования")
                 .setCancelable(false)
                 .setPositiveButton(android.R.string.yes) { _, _ ->
-                    createEquipmentType(
+                    createCabinet(
                         etCabinet.text.toString(),
                         etOwner.text.toString(),
                         etLevel.text.toString()
@@ -78,15 +82,13 @@ class CabinetsFragment : Fragment(), DeleteCabinetListener {
 
     }
 
-    private fun createEquipmentType(name: String, owner: String, level: String) {
-        (dataManager.cabinets as MutableList)
-            .add(
-                Cabinet(
-                    name = name,
-                    owner = owner,
-                    level = level
-                )
-            )
+    private fun createCabinet(name: String, owner: String, level: String) {
+        val addedItem = Cabinet(
+            name = name,
+            owner = owner,
+            level = level
+        )
+        viewModel.insertCabinet(addedItem)
         adapter.notifyDataSetChanged()
     }
 }

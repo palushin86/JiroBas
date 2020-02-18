@@ -10,7 +10,9 @@ class CabinetsViewHolder(
     view: View,
     listener: DeleteCabinetListener
 ) : RecyclerView.ViewHolder(view) {
-    val cabinet: TextView = view.findViewById(R.id.tv_cabinet)
+    val name: TextView = view.findViewById(R.id.tv_cabinet_name)
+    val owner: TextView = view.findViewById(R.id.tv_cabinet_owner)
+    val level: TextView = view.findViewById(R.id.tv_cabinet_level)
 
     init {
         view.delete_cabinet.setOnClickListener { listener.delete(adapterPosition) }

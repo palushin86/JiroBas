@@ -3,22 +3,22 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@+id/navigation_home">
+    app:startDestination="@+id/navigation_equipments">
 
     <fragment
-        android:id="@+id/navigation_home"
+        android:id="@+id/navigation_equipments"
         android:name="ru.palushin86.jirka.ui.equipment.EquipmentFragment"
         android:label="@string/title_equipment"
         tools:layout="@layout/fragment_equipment" />
 
     <fragment
-        android:id="@+id/navigation_dashboard"
+        android:id="@+id/navigation_cabinets"
         android:name="ru.palushin86.jirka.ui.cabinets.CabinetsFragment"
         android:label="@string/title_cabinets"
         tools:layout="@layout/fragment_cabinet" />
 
     <fragment
-        android:id="@+id/navigation_notifications"
+        android:id="@+id/navigation_equipment_types"
         android:name="ru.palushin86.jirka.ui.equipment_type.EquipmentTypeFragment"
         android:label="@string/title_equipment_type"
         tools:layout="@layout/fragment_equipment_type" />
