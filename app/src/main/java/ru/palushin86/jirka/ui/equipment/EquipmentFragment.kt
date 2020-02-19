@@ -59,16 +59,9 @@ class EquipmentFragment : Fragment(), DeleteEquipmentListener {
     }
 
     override fun delete(position: Int) {
-        if (!checkLinksExist()) {
-            val item = viewModel.equipments[position]
-            viewModel.deleteEquipment(item)
-            adapter.notifyDataSetChanged()
-        }
-    }
-
-    private fun checkLinksExist(): Boolean {
-        //TODO: здесь перед удалением будет проверяться есть ли у оборудования связанные записи
-        return false
+        val item = viewModel.equipments[position]
+        viewModel.deleteEquipment(item)
+        adapter.notifyDataSetChanged()
     }
 
     private fun onEquipmentTypeAddClick() {
@@ -133,8 +126,8 @@ class EquipmentFragment : Fragment(), DeleteEquipmentListener {
         os: Editable?
     ) {
         val addedItem = Equipment(
-            equipmentTypeId = type,
-            cabinetId = cabinet,
+            equipmentTypeId = viewModel.equipmentTypes[type].id ?: 0,
+            cabinetId = viewModel.cabinets[cabinet].id ?: 0,
             name = name.toString(),
             inventoryNumber = inventory.toString(),
             number = number.toString().toInt(),

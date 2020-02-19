@@ -12,8 +12,11 @@ import kotlinx.android.synthetic.main.fragment_equipment_type.*
 import android.app.AlertDialog
 import android.text.Editable
 import android.widget.EditText
+import android.widget.Toast
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import ru.palushin86.jirka.R
+import ru.palushin86.jirka.entities.Equipment
 import ru.palushin86.jirka.entities.EquipmentType
 
 class EquipmentTypeFragment : Fragment(), DeleteEquipmentTypeListener {
@@ -45,16 +48,20 @@ class EquipmentTypeFragment : Fragment(), DeleteEquipmentTypeListener {
     }
 
     override fun delete(position: Int) {
-        if (!checkLinksExist()) {
-            val deletedItem = viewModel.types[position]
-            viewModel.deleteEquipmentType(deletedItem)
-            adapter.notifyDataSetChanged()
-        }
+        val deletedItem = viewModel.types[position]
+        checkLinksExist(deletedItem).observe(this, Observer { equipments ->
+            if (equipments.isEmpty()) {
+                viewModel.deleteEquipmentType(deletedItem)
+                adapter.notifyDataSetChanged()
+            } else {
+                val linkEquipments = equipments.joinToString(separator = ", ") { it.name }
+                Toast.makeText(context, "Удалить нельзя т.к. тип имущества используется в записях имущества $linkEquipments", Toast.LENGTH_LONG).show()
+            }
+        })
     }
 
-    private fun checkLinksExist(): Boolean {
-        //TODO: здесь перед удалением будет проверяться есть ли у типа связанные записи
-        return false
+    private fun checkLinksExist(deletedItem: EquipmentType): LiveData<List<Equipment>> {
+        return viewModel.getEquipmentsByEquipmetType(deletedItem)
     }
 
     private fun onEquipmentTypeAddClick() {

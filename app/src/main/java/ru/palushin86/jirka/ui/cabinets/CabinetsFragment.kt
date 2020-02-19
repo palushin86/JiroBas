@@ -6,7 +6,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
+import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -14,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.fragment_cabinet.*
 import ru.palushin86.jirka.R
 import ru.palushin86.jirka.entities.Cabinet
+import ru.palushin86.jirka.entities.Equipment
 
 class CabinetsFragment : Fragment(), DeleteCabinetListener {
     private lateinit var viewModel: CabinetsViewModel
@@ -44,17 +47,21 @@ class CabinetsFragment : Fragment(), DeleteCabinetListener {
     }
 
     override fun delete(position: Int) {
-        if (!checkLinksExist(position)) {
-            val deletedItem = viewModel.cabinets[position]
-            viewModel.deleteCabinet(deletedItem)
-            adapter.notifyDataSetChanged()
-        }
+        checkLinksExist(position).observe(this, Observer { equipments ->
+            if (equipments.isEmpty()) {
+                val deletedItem = viewModel.cabinets[position]
+                viewModel.deleteCabinet(deletedItem)
+                adapter.notifyDataSetChanged()
+            } else {
+                val linkEquipments = equipments.joinToString(separator = ", ") { it.name }
+                Toast.makeText(context, "Удалить нельзя т.к. кабинет используется в записях имущества $linkEquipments", Toast.LENGTH_LONG).show()
+            }
+        })
     }
 
-    private fun checkLinksExist(position: Int): Boolean {
+    private fun checkLinksExist(position: Int): LiveData<List<Equipment>> {
         val item = viewModel.cabinets[position]
-        viewModel.checkLinksExist(item)
-        return false
+        return viewModel.getEquipmentsByCabinet(item)
     }
 
     private fun onEquipmentTypeAddClick() {
